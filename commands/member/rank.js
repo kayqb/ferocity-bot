@@ -1,4 +1,5 @@
-const { SlashCommandBuilder } = require('discord.js');
+import { SlashCommandBuilder } from 'discord.js';
+import WOMClient from '@wise-old-man/utils';
 
 module.exports = {
 	cooldown: 10,
@@ -13,16 +14,6 @@ module.exports = {
 			option.setName('rsn')
 				.setDescription('In-game Name')
 				.setRequired(true))
-		.addNumberOption(option =>
-			option.setName('combat_level')
-				.setDescription('Combat Level')
-				.setRequired(true)
-				.setMinValue(3))
-		.addNumberOption(option =>
-			option.setName('total_level')
-				.setDescription('Total Level')
-				.setRequired(true)
-				.setMinValue(32))
 		.addNumberOption(option =>
 			option.setName('quests')
 				.setDescription('Quests Completed')
@@ -44,10 +35,18 @@ module.exports = {
 				.setRequired(true)
 				.setMinValue(0)),
 	async execute(interaction) {
+		const womClient = new WOMClient();
+
 		const username = interaction.options.getUser('discord_user');
 		const rsn = interaction.options.getString('rsn');
-		const combatLevel = interaction.options.getNumber('combat_level');
-		const totalLevel = interaction.options.getNumber('total_level');
+
+		const playerDetails = await womClient.players.getPlayerDetails(rsn);
+
+		const combatLevel = playerDetails.combatLevel;
+		const totalLevel = playerDetails.totalLevel;
+		const ehb = playerDetails.ehb;
+		const ehp = playerDetails.ehp;
+
 		const questsCompleted = interaction.options.getNumber('quests');
 		const achievementsCompleted = interaction.options.getNumber('achievements');
 		const combatTasksCompleted = interaction.options.getNumber('combat_tasks');
@@ -55,7 +54,7 @@ module.exports = {
 
 		console.log(`Fetching stats for ${username} and ${rsn}`);
 
-		const totalPoints = combatLevel + totalLevel + questsCompleted + achievementsCompleted + combatTasksCompleted + collectionsLogged;
+		const totalPoints = combatLevel + totalLevel + questsCompleted + achievementsCompleted + combatTasksCompleted + collectionsLogged + ehp + ehb;
 
 		await interaction.reply(`Your rank is ${calculateRank(totalPoints)} with ${totalPoints} points`);
 	},
