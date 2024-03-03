@@ -1,5 +1,5 @@
-import { SlashCommandBuilder } from 'discord.js';
-import WOMClient from '@wise-old-man/utils';
+const { SlashCommandBuilder } = require('discord.js');
+const { WOMClient } = require('@wise-old-man/utils');
 
 module.exports = {
 	cooldown: 10,
