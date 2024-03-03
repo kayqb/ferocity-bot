@@ -6,7 +6,7 @@ module.exports = {
 	category: 'member',
 	data: new SlashCommandBuilder().setName('rank')
 		.setDescription('Calculate the rank for a clan member.')
-		.addUserOption(option =>
+		.addMentionableOption(option =>
 			option.setName('discord_user')
 				.setDescription('Discord user to rank')
 				.setRequired(true))
@@ -14,22 +14,27 @@ module.exports = {
 			option.setName('rsn')
 				.setDescription('In-game Name')
 				.setRequired(true))
-		.addNumberOption(option =>
+		.addIntegerOption(option =>
+			option.setName('total_level')
+				.setDescription('Total Lompleted')
+				.setRequired(true)
+				.setMinValue(0))
+		.addIntegerOption(option =>
 			option.setName('quests')
 				.setDescription('Quests Completed')
 				.setRequired(true)
 				.setMinValue(0))
-		.addNumberOption(option =>
+		.addIntegerOption(option =>
 			option.setName('achievements')
 				.setDescription('Achievements Completed')
 				.setRequired(true)
 				.setMinValue(0))
-		.addNumberOption(option =>
+		.addIntegerOption(option =>
 			option.setName('combat_tasks')
 				.setDescription('Combat Tasks Completed')
 				.setRequired(true)
 				.setMinValue(0))
-		.addNumberOption(option =>
+		.addIntegerOption(option =>
 			option.setName('collection_logs')
 				.setDescription('Collections Logged')
 				.setRequired(true)
@@ -43,20 +48,23 @@ module.exports = {
 		const playerDetails = await womClient.players.getPlayerDetails(rsn);
 
 		const combatLevel = playerDetails.combatLevel;
-		const totalLevel = playerDetails.totalLevel;
 		const ehb = playerDetails.ehb;
 		const ehp = playerDetails.ehp;
 
-		const questsCompleted = interaction.options.getNumber('quests');
-		const achievementsCompleted = interaction.options.getNumber('achievements');
-		const combatTasksCompleted = interaction.options.getNumber('combat_tasks');
-		const collectionsLogged = interaction.options.getNumber('collection_logs');
+		const totalLevel = interaction.options.getInteger('total_level');
+		const questsCompleted = interaction.options.getInteger('quests');
+		const achievementsCompleted = interaction.options.getInteger('achievements');
+		const combatTasksCompleted = interaction.options.getInteger('combat_tasks');
+		const collectionsLogged = interaction.options.getInteger('collection_logs');
 
 		console.log(`Fetching stats for ${username} and ${rsn}`);
 
 		const totalPoints = combatLevel + totalLevel + questsCompleted + achievementsCompleted + combatTasksCompleted + collectionsLogged + ehp + ehb;
+		const formattedPoints = totalPoints.toFixed(0);
 
-		await interaction.reply(`Your rank is ${calculateRank(totalPoints)} with ${totalPoints} points`);
+		const rank = calculateRank(totalPoints);
+
+		await interaction.reply(`Your rank ${username} is ${rank} with ${formattedPoints} points`);
 	},
 };
 
